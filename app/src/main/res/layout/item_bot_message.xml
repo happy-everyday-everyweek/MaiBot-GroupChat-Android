@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:gravity="start">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="start">
+
+        <TextView
+            android:id="@+id/bot_sender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bot 1"
+            android:textSize="14sp"
+            android:textColor="@color/purple_500"
+            android:fontFamily="@font/roboto_medium"
+            android:layout_marginBottom="5dp" />
+
+        <TextView
+            android:id="@+id/bot_message_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="240dp"
+            android:padding="10dp"
+            android:background="@drawable/bot_message_bubble"
+            android:text="这是一条机器人消息"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/bot_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="12:34"
+            android:textSize="12sp"
+            android:textColor="@color/gray" />
+
+    </LinearLayout>
+
+</LinearLayout>
