@@ -4,11 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.imageview.ShapeableImageView;
 import com.maibot.groupchat.R;
 import com.maibot.groupchat.model.Message;
 
@@ -25,6 +28,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private List<Message> messageList;
     private SimpleDateFormat dateFormat;
+    private int lastPosition = -1;
 
     public ChatAdapter(Context context, List<Message> messageList) {
         this.context = context;
@@ -60,9 +64,45 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             botHolder.senderText.setText(message.getSender());
             botHolder.messageText.setText(message.getContent());
             botHolder.timestampText.setText(dateFormat.format(new Date(message.getTimestamp())));
+            
+            // 设置机器人头像背景色（根据发送者不同显示不同颜色）
+            int avatarColor = getAvatarColor(message.getSender());
+            botHolder.avatar.setBackgroundColor(avatarColor);
         } else if (holder instanceof LoadingMessageViewHolder) {
-            // 加载状态不需要绑定数据
+            // 加载状态不需要绑定数据，但可以启动动画
+            LoadingMessageViewHolder loadingHolder = (LoadingMessageViewHolder) holder;
+            loadingHolder.startAnimation();
         }
+
+        // 添加项动画
+        setAnimation(holder.itemView, position);
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.itemView.clearAnimation();
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.message_item_animation);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
+    }
+
+    private int getAvatarColor(String sender) {
+        // 根据发送者名称生成不同的颜色
+        int hash = sender.hashCode();
+        int[] colors = {
+            context.getResources().getColor(R.color.primary),
+            context.getResources().getColor(R.color.accent),
+            context.getResources().getColor(R.color.info),
+            context.getResources().getColor(R.color.warning),
+            context.getResources().getColor(R.color.success)
+        };
+        return colors[Math.abs(hash) % colors.length];
     }
 
     @Override
@@ -94,12 +134,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class BotMessageViewHolder extends RecyclerView.ViewHolder {
+        ShapeableImageView avatar;
         TextView senderText;
         TextView messageText;
         TextView timestampText;
 
         public BotMessageViewHolder(@NonNull View itemView) {
             super(itemView);
+            avatar = itemView.findViewById(R.id.bot_avatar);
             senderText = itemView.findViewById(R.id.bot_sender);
             messageText = itemView.findViewById(R.id.bot_message_text);
             timestampText = itemView.findViewById(R.id.bot_timestamp);
@@ -107,8 +149,39 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class LoadingMessageViewHolder extends RecyclerView.ViewHolder {
+        private View dot1, dot2, dot3;
+
         public LoadingMessageViewHolder(@NonNull View itemView) {
             super(itemView);
+            dot1 = itemView.findViewById(R.id.dot1);
+            dot2 = itemView.findViewById(R.id.dot2);
+            dot3 = itemView.findViewById(R.id.dot3);
+        }
+
+        public void startAnimation() {
+            // 启动加载动画
+            animateDot(dot1, 0);
+            animateDot(dot2, 200);
+            animateDot(dot3, 400);
+        }
+
+        private void animateDot(View dot, long delay) {
+            dot.animate()
+                .scaleX(1.5f)
+                .scaleY(1.5f)
+                .alpha(0.5f)
+                .setDuration(600)
+                .setStartDelay(delay)
+                .withEndAction(() -> {
+                    dot.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .alpha(1f)
+                        .setDuration(600)
+                        .withEndAction(() -> animateDot(dot, 0))
+                        .start();
+                })
+                .start();
         }
     }
 }

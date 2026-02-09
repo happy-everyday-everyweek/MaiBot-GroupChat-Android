@@ -12,13 +12,18 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.maibot.groupchat.R;
 import com.maibot.groupchat.adapter.ChatAdapter;
 import com.maibot.groupchat.model.Message;
@@ -30,6 +35,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private static final String ACTION_BOT_REPLY = "com.maibot.groupchat.BOT_REPLY";
     private static final String EXTRA_SENDER = "sender";
     private static final String EXTRA_MESSAGE = "message";
@@ -38,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<Message> messageList;
     private EditText messageInput;
-    private ImageButton sendButton;
+    private FloatingActionButton sendButton;
+    private MaterialToolbar toolbar;
+    private LinearLayout emptyState;
     private MaiBotService maiBotService;
     private boolean isServiceBound = false;
 
@@ -82,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
                     
                     // 重新启用发送按钮
                     sendButton.setEnabled(true);
+                    sendButton.setAlpha(1.0f);
+                    
+                    // 隐藏空状态
+                    updateEmptyState();
                 }
             }
         }
@@ -101,22 +113,17 @@ public class MainActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recycler_view);
-        messageInput = findViewById(R.id.message_input);
-        sendButton = findViewById(R.id.send_button);
-
-        messageList = new ArrayList<>();
-        chatAdapter = new ChatAdapter(this, messageList);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(chatAdapter);
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendMessage();
-            }
-        });
+        // 初始化视图
+        initViews();
+        
+        // 设置工具栏
+        setupToolbar();
+        
+        // 设置RecyclerView
+        setupRecyclerView();
+        
+        // 设置发送按钮
+        setupSendButton();
 
         // 注册广播接收器
         IntentFilter filter = new IntentFilter(ACTION_BOT_REPLY);
@@ -127,6 +134,76 @@ public class MainActivity extends AppCompatActivity {
         // 绑定服务
         Intent serviceIntent = new Intent(this, MaiBotService.class);
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    private void initViews() {
+        recyclerView = findViewById(R.id.recycler_view);
+        messageInput = findViewById(R.id.message_input);
+        sendButton = findViewById(R.id.send_button);
+        toolbar = findViewById(R.id.toolbar);
+        emptyState = findViewById(R.id.empty_state);
+    }
+
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
+    }
+
+    private void setupRecyclerView() {
+        messageList = new ArrayList<>();
+        chatAdapter = new ChatAdapter(this, messageList);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(chatAdapter);
+        
+        // 添加Item动画
+        recyclerView.setItemAnimator(new androidx.recyclerview.widget.DefaultItemAnimator() {
+            @Override
+            public boolean animateAdd(RecyclerView.ViewHolder holder) {
+                Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.message_item_animation);
+                holder.itemView.startAnimation(animation);
+                return super.animateAdd(holder);
+            }
+        });
+        
+        updateEmptyState();
+    }
+
+    private void setupSendButton() {
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage();
+            }
+        });
+        
+        // 添加按钮按压动画效果
+        sendButton.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).start();
+                    break;
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                    break;
+            }
+            return false;
+        });
+    }
+
+    private void updateEmptyState() {
+        if (messageList.isEmpty()) {
+            emptyState.setVisibility(View.VISIBLE);
+            Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            emptyState.startAnimation(fadeIn);
+        } else {
+            emptyState.setVisibility(View.GONE);
+        }
     }
 
     private void checkAndInitializeConfig() {
@@ -166,6 +243,10 @@ public class MainActivity extends AppCompatActivity {
 
             // 禁用发送按钮，防止重复发送
             sendButton.setEnabled(false);
+            sendButton.setAlpha(0.5f);
+
+            // 隐藏空状态
+            updateEmptyState();
 
             // 发送消息到MaiBot服务
             if (isServiceBound && maiBotService != null) {
@@ -187,7 +268,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            // 添加页面切换动画
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -196,11 +280,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // 注销广播接收器
-        unregisterReceiver(botReplyReceiver);
+        // 注销广播接收器（添加异常处理）
+        try {
+            unregisterReceiver(botReplyReceiver);
+        } catch (IllegalArgumentException e) {
+            // 接收器未注册或已被注销
+            Log.d(TAG, "BroadcastReceiver was not registered");
+        }
         // 解绑服务
         if (isServiceBound) {
-            unbindService(serviceConnection);
+            try {
+                unbindService(serviceConnection);
+            } catch (IllegalArgumentException e) {
+                // 服务未绑定
+                Log.d(TAG, "Service was not bound");
+            }
             isServiceBound = false;
         }
         // 停止MaiBot服务

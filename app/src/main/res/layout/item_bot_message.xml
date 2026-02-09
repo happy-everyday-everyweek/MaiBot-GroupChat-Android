@@ -1,45 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="10dp"
+    android:orientation="horizontal"
+    android:paddingVertical="6dp"
+    android:paddingHorizontal="8dp"
     android:gravity="start">
+
+    <!-- 机器人头像 -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/bot_avatar"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:background="@drawable/bot_avatar_background"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/CircleImageView"
+        android:layout_marginEnd="8dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="start">
+        android:gravity="start"
+        android:layout_marginEnd="64dp">
 
         <TextView
             android:id="@+id/bot_sender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bot 1"
-            android:textSize="14sp"
-            android:textColor="@color/purple_500"
+            android:textSize="13sp"
+            android:textColor="@color/primary"
             android:textStyle="bold"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="4dp" />
 
         <TextView
             android:id="@+id/bot_message_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="240dp"
-            android:padding="10dp"
+            android:maxWidth="280dp"
+            android:padding="14dp 18dp"
             android:background="@drawable/bot_message_bubble"
             android:text="这是一条机器人消息"
-            android:textSize="16sp" />
+            android:textColor="@color/bot_message_text"
+            android:textSize="16sp"
+            android:lineSpacingMultiplier="1.2"
+            android:elevation="1dp" />
 
         <TextView
             android:id="@+id/bot_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="4dp"
             android:text="12:34"
-            android:textSize="12sp"
-            android:textColor="@color/gray" />
+            android:textSize="11sp"
+            android:textColor="@color/text_hint" />
 
     </LinearLayout>
 

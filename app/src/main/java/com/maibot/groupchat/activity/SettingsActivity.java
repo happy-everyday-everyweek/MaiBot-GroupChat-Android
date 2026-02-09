@@ -9,11 +9,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.slider.Slider;
 import com.maibot.groupchat.R;
 import com.maibot.groupchat.service.MaiBotService;
 import com.maibot.groupchat.utils.ConfigManager;
@@ -22,7 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Spinner apiProviderSpinner;
     private EditText apiKeyInput;
-    private SeekBar botInstancesSeekBar;
+    private Slider botInstancesSlider;
     private TextView botInstancesValue;
     private Button saveButton;
     private Button cancelButton;
@@ -45,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         apiProviderSpinner = findViewById(R.id.api_provider_spinner);
         apiKeyInput = findViewById(R.id.api_key_input);
-        botInstancesSeekBar = findViewById(R.id.bot_instances_seekbar);
+        botInstancesSlider = findViewById(R.id.bot_instances_slider);
         botInstancesValue = findViewById(R.id.bot_instances_value);
         saveButton = findViewById(R.id.save_button);
         cancelButton = findViewById(R.id.cancel_button);
@@ -74,8 +74,8 @@ public class SettingsActivity extends AppCompatActivity {
         // 设置API密钥
         apiKeyInput.setText(configManager.getApiKey());
 
-        // 设置机器人实例数量
-        botInstancesSeekBar.setProgress(botInstances);
+        // 设置机器人实例数量Slider
+        botInstancesSlider.setValue(botInstances);
         botInstancesValue.setText(String.valueOf(botInstances));
 
         // API提供商选择监听
@@ -90,20 +90,12 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        // 机器人实例数量监听
-        botInstancesSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        // 机器人实例数量Slider监听
+        botInstancesSlider.addOnChangeListener(new Slider.OnChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                botInstances = progress;
-                botInstancesValue.setText(String.valueOf(progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onValueChange(Slider slider, float value, boolean fromUser) {
+                botInstances = (int) value;
+                botInstancesValue.setText(String.valueOf(botInstances));
             }
         });
 

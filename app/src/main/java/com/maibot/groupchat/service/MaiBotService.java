@@ -17,7 +17,7 @@ import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.maibot.groupchat.R;
 import com.maibot.groupchat.activity.MainActivity;
-import com.maibot.groupchat.utils.ConfigManager;
+import com.maibot.groupchat.utils.SecureConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class MaiBotService extends Service {
         super.onCreate();
         Log.i(TAG, "MaiBotService created");
 
-        configManager = new ConfigManager(this);
+        configManager = new SecureConfigManager(this);
         botInstances = new ArrayList<>();
         executorService = Executors.newSingleThreadExecutor();
 
@@ -323,6 +323,15 @@ public class MaiBotService extends Service {
         // 关闭线程池
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();
+            try {
+                // 等待5秒让任务完成
+                if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                    // 强制关闭
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
         }
 
         // 清理Python
