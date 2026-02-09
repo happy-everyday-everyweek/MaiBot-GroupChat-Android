@@ -8,17 +8,4 @@
         <item name="colorOnSecondary">@color/black</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>
-    <style name="ChatMessageStyle" parent="Widget.MaterialComponents.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:maxWidth">240dp</item>
-        <item name="android:padding">10dp</item>
-        <item name="android:background">@drawable/message_bubble</item>
-    </style>
-    <style name="UserMessageStyle" parent="ChatMessageStyle">
-        <item name="android:background">@drawable/user_message_bubble</item>
-    </style>
-    <style name="BotMessageStyle" parent="ChatMessageStyle">
-        <item name="android:background">@drawable/bot_message_bubble</item>
-    </style>
 </resources>

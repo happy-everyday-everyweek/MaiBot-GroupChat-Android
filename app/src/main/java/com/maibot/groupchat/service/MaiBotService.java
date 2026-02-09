@@ -150,6 +150,12 @@ public class MaiBotService extends Service {
             return false;
         }
 
+        // 保存配置到 ConfigManager
+        configManager.setApiProvider(apiProvider);
+        configManager.setApiKey(apiKey);
+        configManager.setBotInstances(instanceCount);
+        configManager.setConfigured(true);
+
         return initializeConfigInternal();
     }
 
