@@ -11,10 +11,39 @@ public class ConfigManager {
     private static final String KEY_BOT_INSTANCES = "bot_instances";
     private static final String KEY_IS_CONFIGURED = "is_configured";
 
+    // 服务器配置
+    private static final String KEY_SERVER_HOST = "server_host";
+    private static final String KEY_SERVER_PORT = "server_port";
+    private static final String DEFAULT_SERVER_HOST = "127.0.0.1";
+    private static final int DEFAULT_SERVER_PORT = 8000;
+
     private SharedPreferences sharedPreferences;
 
     public ConfigManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    // 服务器主机地址
+    public String getServerHost() {
+        return sharedPreferences.getString(KEY_SERVER_HOST, DEFAULT_SERVER_HOST);
+    }
+
+    public void setServerHost(String host) {
+        sharedPreferences.edit().putString(KEY_SERVER_HOST, host).apply();
+    }
+
+    // 服务器端口
+    public int getServerPort() {
+        return sharedPreferences.getInt(KEY_SERVER_PORT, DEFAULT_SERVER_PORT);
+    }
+
+    public void setServerPort(int port) {
+        sharedPreferences.edit().putInt(KEY_SERVER_PORT, port).apply();
+    }
+
+    // 获取完整的服务器基础URL
+    public String getBaseUrl() {
+        return "http://" + getServerHost() + ":" + getServerPort();
     }
 
     // API提供商

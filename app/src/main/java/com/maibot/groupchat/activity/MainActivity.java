@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
@@ -18,11 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.maibot.groupchat.R;
 import com.maibot.groupchat.adapter.ChatAdapter;
 import com.maibot.groupchat.model.Message;
 import com.maibot.groupchat.service.MaiBotService;
+import com.maibot.groupchat.utils.ConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
             MaiBotService.LocalBinder binder = (MaiBotService.LocalBinder) service;
             maiBotService = binder.getService();
             isServiceBound = true;
+            
+            // 检查是否需要初始化配置
+            checkAndInitializeConfig();
         }
 
         @Override
@@ -86,6 +90,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // 检查是否已配置
+        ConfigManager configManager = new ConfigManager(this);
+        if (!configManager.isConfigured()) {
+            // 未配置，跳转到设置页面
+            startActivity(new Intent(this, SettingsActivity.class));
+            Toast.makeText(this, "请先配置AI模型", Toast.LENGTH_LONG).show();
+        }
+        
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -114,6 +127,23 @@ public class MainActivity extends AppCompatActivity {
         // 绑定服务
         Intent serviceIntent = new Intent(this, MaiBotService.class);
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    private void checkAndInitializeConfig() {
+        ConfigManager configManager = new ConfigManager(this);
+        if (configManager.isConfigured() && !maiBotService.isPythonServerRunning()) {
+            // 已配置但服务未运行，初始化配置
+            String apiProvider = configManager.getApiProvider();
+            String apiKey = configManager.getApiKey();
+            int instanceCount = configManager.getBotInstances();
+            
+            boolean success = maiBotService.initializeConfig(apiProvider, apiKey, instanceCount);
+            if (success) {
+                Toast.makeText(this, "MaiBot服务已启动", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "MaiBot服务启动失败", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void sendMessage() {

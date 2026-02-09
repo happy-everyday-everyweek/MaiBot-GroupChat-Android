@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class ApiClient {
 
     private static final String TAG = "ApiClient";
-    private static final String BASE_URL = "http://127.0.0.1:8000";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final int TIMEOUT_SECONDS = 30;
 
@@ -38,12 +37,17 @@ public class ApiClient {
         this.configManager = new ConfigManager(context);
     }
 
+    // 获取动态基础URL
+    private String getBaseUrl() {
+        return configManager.getBaseUrl();
+    }
+
     public String getReply(String message) {
         // 构建API请求
-        String json = "{\"message\": \"" + message + "\"}";
+        String json = "{\"message\": \"" + escapeJson(message) + "\"}";
         RequestBody body = RequestBody.create(json, JSON);
         Request request = new Request.Builder()
-                .url(BASE_URL + "/api/chat")
+                .url(getBaseUrl() + "/api/chat")
                 .post(body)
                 .build();
 
@@ -85,7 +89,7 @@ public class ApiClient {
 
     public boolean checkHealth() {
         Request request = new Request.Builder()
-                .url(BASE_URL + "/api/health")
+                .url(getBaseUrl() + "/api/health")
                 .get()
                 .build();
 
@@ -96,5 +100,50 @@ public class ApiClient {
             Log.e(TAG, "Health check failed", e);
             return false;
         }
+    }
+
+    // JSON字符串转义，防止注入攻击
+    private String escapeJson(String input) {
+        if (input == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            switch (c) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    if (c < ' ') {
+                        String hex = Integer.toHexString(c);
+                        sb.append("\\u");
+                        for (int i = 0; i < 4 - hex.length(); i++) {
+                            sb.append('0');
+                        }
+                        sb.append(hex);
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        return sb.toString();
     }
 }

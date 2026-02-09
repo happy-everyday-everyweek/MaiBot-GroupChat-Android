@@ -10,5 +10,11 @@
     <string name="loading">加载中...</string>
     <string name="error">错误</string>
     <string name="error_message">发送失败，请重试</string>
-    <string name="service_builtin">MaiBot服务已内置，无需额外配置</string>
+    <string name="service_builtin">MaiBot服务已内置，配置API后即可使用</string>
+    <string name="api_provider">AI服务提供商</string>
+    <string name="api_key">API密钥</string>
+    <string name="please_configure">请先配置AI模型</string>
+    <string name="settings_saved">设置已保存</string>
+    <string name="service_started">MaiBot服务已启动</string>
+    <string name="service_failed">MaiBot服务启动失败</string>
 </resources>

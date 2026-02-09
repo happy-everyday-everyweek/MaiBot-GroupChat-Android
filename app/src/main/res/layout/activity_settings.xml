@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="机器人设置"
+        android:text="AI模型配置"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginTop="20dp"
@@ -20,9 +20,41 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/bot_instances"
+        android:text="AI服务提供商"
         android:textSize="16sp"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp" />
+
+    <Spinner
+        android:id="@+id/api_provider_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/input_border" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="API密钥"
+        android:textSize="16sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp" />
+
+    <EditText
+        android:id="@+id/api_key_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/input_border"
+        android:inputType="textPassword"
+        android:hint="请输入API密钥" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="机器人实例数量"
+        android:textSize="16sp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="10dp" />
 
     <LinearLayout
@@ -54,7 +86,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MaiBot服务已内置，无需额外配置"
+        android:text="MaiBot服务已内置，配置API后即可使用"
         android:textSize="14sp"
         android:textColor="@android:color/darker_gray"
         android:layout_marginTop="30dp"
