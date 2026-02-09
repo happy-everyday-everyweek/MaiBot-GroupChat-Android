@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.chaquo.python'
 }
 
 android {
@@ -14,6 +15,10 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a"
+        }
     }
 
     buildTypes {
@@ -25,6 +30,47 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+chaquopy {
+    defaultConfig {
+        version "3.10"
+        buildPython "python3"
+
+        pip {
+            // MaiBot核心依赖
+            install "aiohttp>=3.12.14"
+            install "aiohttp-cors>=0.8.1"
+            install "colorama>=0.4.6"
+            install "faiss-cpu>=1.11.0"
+            install "fastapi>=0.116.0"
+            install "google-genai>=1.39.1"
+            install "jieba>=0.42.1"
+            install "json-repair>=0.47.6"
+            install "maim-message"
+            install "matplotlib>=3.10.3"
+            install "numpy>=2.2.6"
+            install "openai>=1.95.0"
+            install "pandas>=2.3.1"
+            install "peewee>=3.18.2"
+            install "pillow>=11.3.0"
+            install "pyarrow>=20.0.0"
+            install "pydantic>=2.11.7"
+            install "pypinyin>=0.54.0"
+            install "python-dotenv>=1.1.1"
+            install "python-multipart>=0.0.20"
+            install "quick-algo>=0.1.3"
+            install "rich>=14.0.0"
+            install "setuptools>=80.9.0"
+            install "structlog>=25.4.0"
+            install "toml>=0.10.2"
+            install "tomlkit>=0.13.3"
+            install "urllib3>=2.5.0"
+            install "uvicorn>=0.35.0"
+            install "msgpack"
+            install "zstandard"
+        }
     }
 }
 

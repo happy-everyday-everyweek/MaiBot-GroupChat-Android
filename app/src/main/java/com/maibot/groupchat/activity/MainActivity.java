@@ -5,10 +5,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +41,20 @@ public class MainActivity extends AppCompatActivity {
     private MaiBotService maiBotService;
     private boolean isServiceBound = false;
 
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MaiBotService.LocalBinder binder = (MaiBotService.LocalBinder) service;
+            maiBotService = binder.getService();
+            isServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isServiceBound = false;
+        }
+    };
+
     private BroadcastReceiver botReplyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -57,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
                     messageList.add(botMessage);
                     chatAdapter.notifyItemInserted(messageList.size() - 1);
                     recyclerView.scrollToPosition(messageList.size() - 1);
+                    
+                    // 重新启用发送按钮
+                    sendButton.setEnabled(true);
                 }
             }
         }
@@ -91,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
         // 启动MaiBot服务
         startService(new Intent(this, MaiBotService.class));
         // 绑定服务
-        // Intent serviceIntent = new Intent(this, MaiBotService.class);
-        // bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
+        Intent serviceIntent = new Intent(this, MaiBotService.class);
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     private void sendMessage() {
@@ -113,10 +134,17 @@ public class MainActivity extends AppCompatActivity {
             // 清空输入框
             messageInput.setText("");
 
+            // 禁用发送按钮，防止重复发送
+            sendButton.setEnabled(false);
+
             // 发送消息到MaiBot服务
-            Intent intent = new Intent(this, MaiBotService.class);
-            intent.putExtra("message", messageText);
-            startService(intent);
+            if (isServiceBound && maiBotService != null) {
+                maiBotService.sendMessageToBots(messageText);
+            } else {
+                Intent intent = new Intent(this, MaiBotService.class);
+                intent.putExtra("message", messageText);
+                startService(intent);
+            }
         }
     }
 
@@ -141,10 +169,10 @@ public class MainActivity extends AppCompatActivity {
         // 注销广播接收器
         unregisterReceiver(botReplyReceiver);
         // 解绑服务
-        // if (isServiceBound) {
-        //     unbindService(serviceConnection);
-        //     isServiceBound = false;
-        // }
+        if (isServiceBound) {
+            unbindService(serviceConnection);
+            isServiceBound = false;
+        }
         // 停止MaiBot服务
         stopService(new Intent(this, MaiBotService.class));
     }

@@ -2,7 +2,6 @@
     <string name="app_name">MaiBot群组聊天</string>
     <string name="hello_world">Hello World!</string>
     <string name="settings">设置</string>
-    <string name="api_key">API密钥</string>
     <string name="bot_instances">机器人实例数量</string>
     <string name="save">保存</string>
     <string name="cancel">取消</string>
@@ -11,4 +10,5 @@
     <string name="loading">加载中...</string>
     <string name="error">错误</string>
     <string name="error_message">发送失败，请重试</string>
+    <string name="service_builtin">MaiBot服务已内置，无需额外配置</string>
 </resources>
